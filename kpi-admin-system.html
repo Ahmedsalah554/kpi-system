@@ -634,7 +634,7 @@
                     </div>
                     <div class="stat-card" style="border-right-color: #4caf50;">
                         <div class="stat-label">عدد المؤشرات</div>
-                        <div class="stat-number">174</div>
+                        <div class="stat-number" id="kpisCount">0</div>
                         <div class="stat-trend">📊 كامل النظام</div>
                     </div>
                     <div class="stat-card" style="border-right-color: #2196f3;">
@@ -713,8 +713,26 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="card-title">📈 إدارة المؤشرات</div>
-                        <input type="text" placeholder="🔍 بحث عن مؤشر..." id="kpiSearch" 
-                               onkeyup="filterKPIs()" style="width: 300px; max-width: 100%;">
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <input type="text" placeholder="🔍 بحث عن مؤشر..." id="kpiSearch" 
+                                   onkeyup="searchKPIs()" style="width: 250px;">
+                            
+                            <select id="categoryFilter" onchange="filterKPIs()" style="padding: 10px;">
+                                <option value="">كل الفئات</option>
+                                <option value="WFM">WFM</option>
+                                <option value="UTZ">UTZ</option>
+                                <option value="MP">MP</option>
+                                <option value="PHC">PHC</option>
+                                <option value="IPC">IPC</option>
+                                <option value="PS">PS</option>
+                                <option value="OHS">OHS</option>
+                                <option value="MM">MM</option>
+                                <option value="LAB">LAB</option>
+                                <option value="DF">DF</option>
+                            </select>
+                            
+                            <button class="btn btn-primary" onclick="openAddKPIForm()">➕ إضافة مؤشر</button>
+                        </div>
                     </div>
 
                     <div class="table-responsive">
@@ -725,8 +743,7 @@
                                     <th>اسم المؤشر</th>
                                     <th>الفئة</th>
                                     <th>نوع المؤشر</th>
-                                    <th>الحالة</th>
-                                    <th>الإجراءات</th>
+                                    <th>إجراءات</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -884,13 +901,53 @@
         </div>
     </div>
 
+    <!-- نافذة إضافة/تعديل مؤشر -->
+    <div id="addKPIForm" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                📈 إضافة / تعديل مؤشر
+                <button class="modal-close" onclick="closeAddKPIForm()">✕</button>
+            </div>
+            <div class="form-group">
+                <label>الكود *</label>
+                <input type="text" id="kpiCode" required>
+            </div>
+            <div class="form-group">
+                <label>اسم المؤشر *</label>
+                <input type="text" id="kpiName" required>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>الفئة *</label>
+                    <input type="text" id="kpiCategory" required>
+                </div>
+                <div class="form-group">
+                    <label>نوع المؤشر *</label>
+                    <input type="text" id="kpiType" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>المعادلة</label>
+                <textarea id="kpiFormula" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+                <label>تعليمات تجميع البيانات</label>
+                <textarea id="kpiInstructions" rows="3"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeAddKPIForm()">إلغاء</button>
+                <button type="button" class="btn btn-primary" onclick="saveNewKPI()">💾 حفظ</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // ===== بيانات النظام =====
         let systemData = {
             currentUser: null,
             facilities: [],
             users: [],
-            kpis: getAllKPIs(),
+            kpis: JSON.parse(localStorage.getItem("kpis")) || [],
             permissions: {},
             activityLog: []
         };
@@ -899,7 +956,12 @@
         function initializeSystem() {
             const savedData = localStorage.getItem('kpiSystemData');
             if (savedData) {
-                systemData = JSON.parse(savedData);
+                const parsedData = JSON.parse(savedData);
+                // استبدال المؤشرات بالمؤشرات المحفوظة في localStorage إذا كانت موجودة
+                if (systemData.kpis.length > 0) {
+                    parsedData.kpis = systemData.kpis;
+                }
+                systemData = parsedData;
             } else {
                 // بيانات افتراضية
                 systemData.facilities = [
@@ -929,6 +991,13 @@
                 ];
 
                 systemData.currentUser = systemData.users[0];
+                
+                // إذا لم تكن هناك مؤشرات محفوظة، قم بتحميل المؤشرات الافتراضية
+                if (systemData.kpis.length === 0) {
+                    systemData.kpis = getAllKPIs();
+                    localStorage.setItem("kpis", JSON.stringify(systemData.kpis));
+                }
+                
                 saveData();
             }
 
@@ -943,19 +1012,6 @@
         // ===== حفظ البيانات =====
         function saveData() {
             localStorage.setItem('kpiSystemData', JSON.stringify(systemData));
-        }
-
-        // ===== الحصول على جميع المؤشرات =====
-        function getAllKPIs() {
-            return [
-                {"code": "WFM-01", "name": "نسبة تنفيذ الدورات التدريبية", "category": "WFM", "type": "نسبة"},
-                {"code": "WFM-02", "name": "نسبة الالتزام بالحضور", "category": "WFM", "type": "نسبة"},
-                {"code": "UTZ-01", "name": "نسبة الاشغال للاقسام الداخلية", "category": "UTZ", "type": "نسبة"},
-                {"code": "MP-01", "name": "نسبة وفيات الأقسام الداخلية", "category": "MP", "type": "معدل"},
-                {"code": "PHC-01", "name": "تناسب عدد أطباء الأسرة", "category": "PHC", "type": "تناسب"},
-                // إضافة المؤشرات الأخرى حسب الحاجة
-                // سأضيف عينة صغيرة هنا لتقليل حجم الملف
-            ];
         }
 
         // ===== تبديل التبويبات =====
@@ -990,6 +1046,7 @@
         function updateDashboard() {
             document.getElementById('facilitiesCount').textContent = systemData.facilities.length;
             document.getElementById('usersCount').textContent = systemData.users.length;
+            document.getElementById('kpisCount').textContent = systemData.kpis.length;
             document.getElementById('dataCount').textContent = 
                 (JSON.parse(localStorage.getItem('kpiData') || '[]')).length;
 
@@ -1030,7 +1087,7 @@
             saveData();
             loadFacilities();
             closeModal('addFacilityModal');
-            document.getElementById('facilityForm').reset();
+            document.getElementById('addFacilityModal').querySelector('form').reset();
             showAlert('تم إضافة المنشأة بنجاح! ✅');
             updateDashboard();
         }
@@ -1117,9 +1174,7 @@
             saveData();
             loadUsers();
             closeModal('addUserModal');
-            document.getElementById('userName').value = '';
-            document.getElementById('userEmail').value = '';
-            document.getElementById('userPassword').value = '';
+            document.getElementById('addUserModal').querySelector('form').reset();
             showAlert('تم إضافة المستخدم بنجاح! ✅');
             updateDashboard();
             loadPermissionUsers();
@@ -1181,33 +1236,152 @@
             }
         }
 
-        // ===== إدارة المؤشرات =====
-        function loadKPIs() {
+        // ===== دوال إدارة المؤشرات الجديدة =====
+
+        // تحميل المؤشرات في الجدول
+        function loadKPIs(list = systemData.kpis) {
             const tbody = document.querySelector('#kpisTable tbody');
-            tbody.innerHTML = systemData.kpis.map(kpi => `
+            if (!tbody) return;
+            
+            tbody.innerHTML = list.map(kpi => `
                 <tr>
                     <td><strong>${kpi.code}</strong></td>
-                    <td>${kpi.name}</td>
-                    <td><span style="background: #e3f2fd; padding: 4px 8px; border-radius: 4px;">${kpi.category}</span></td>
-                    <td>${kpi.type}</td>
-                    <td><span class="status-badge status-active">✅ مفعل</span></td>
+                    <td>
+                        <div style="font-weight: 600;">${kpi.name}</div>
+                        <small style="color: #666; font-size: 0.85em;">${kpi.formula || ''}</small>
+                    </td>
+                    <td><span style="background: #e3f2fd; padding: 4px 8px; border-radius: 4px; font-size: 0.9em;">${kpi.category}</span></td>
+                    <td><span style="background: #e8f5e9; padding: 4px 8px; border-radius: 4px; font-size: 0.9em;">${kpi.type}</span></td>
                     <td>
                         <div class="action-buttons">
-                            <button class="btn btn-small btn-primary" onclick="viewKPI('${kpi.code}')">👁️</button>
+                            <button class="btn btn-small btn-primary" onclick="editKPI('${kpi.code}')">✏️ تعديل</button>
+                            <button class="btn btn-small btn-danger" onclick="deleteKPI('${kpi.code}')">🗑️ حذف</button>
                         </div>
                     </td>
                 </tr>
             `).join('');
         }
 
+        // البحث الذكي
+        function searchKPIs() {
+            const text = document.getElementById("kpiSearch").value.toLowerCase();
+
+            const results = systemData.kpis.filter(kpi =>
+                kpi.code.toLowerCase().includes(text) ||
+                kpi.name.toLowerCase().includes(text) ||
+                (kpi.category && kpi.category.toLowerCase().includes(text))
+            );
+
+            loadKPIs(results);
+        }
+
+        // التصفية حسب الفئة
         function filterKPIs() {
-            const search = document.getElementById('kpiSearch').value.toLowerCase();
-            const rows = document.querySelectorAll('#kpisTable tbody tr');
+            const cat = document.getElementById("categoryFilter").value;
+
+            if (cat === "") {
+                loadKPIs(systemData.kpis);
+                return;
+            }
+
+            const filtered = systemData.kpis.filter(kpi => kpi.category === cat);
+            loadKPIs(filtered);
+        }
+
+        // فتح نافذة إضافة مؤشر
+        function openAddKPIForm() {
+            window.editingKPI = null;
+            document.getElementById('kpiCode').value = '';
+            document.getElementById('kpiName').value = '';
+            document.getElementById('kpiCategory').value = '';
+            document.getElementById('kpiType').value = '';
+            document.getElementById('kpiFormula').value = '';
+            document.getElementById('kpiInstructions').value = '';
+            document.getElementById('addKPIForm').classList.add('active');
+        }
+
+        // غلق النافذة
+        function closeAddKPIForm() {
+            document.getElementById('addKPIForm').classList.remove('active');
+            window.editingKPI = null;
+        }
+
+        // حفظ/تعديل مؤشر
+        function saveNewKPI() {
+            const kpiData = {
+                code: document.getElementById('kpiCode').value,
+                name: document.getElementById('kpiName').value,
+                category: document.getElementById('kpiCategory').value,
+                type: document.getElementById('kpiType').value,
+                formula: document.getElementById('kpiFormula').value,
+                instructions: document.getElementById('kpiInstructions').value
+            };
+
+            if (window.editingKPI) {
+                // تعديل مؤشر موجود
+                const index = systemData.kpis.findIndex(k => k.code === window.editingKPI);
+                systemData.kpis[index] = kpiData;
+            } else {
+                // إضافة مؤشر جديد
+                systemData.kpis.push(kpiData);
+            }
+
+            // حفظ في localStorage
+            localStorage.setItem("kpis", JSON.stringify(systemData.kpis));
+            saveData(); // حفظ في systemData العام
             
-            rows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                row.style.display = text.includes(search) ? '' : 'none';
+            // تحديث العرض
+            loadKPIs();
+            closeAddKPIForm();
+            showAlert('تم حفظ المؤشر بنجاح! ✅');
+            
+            // تسجيل النشاط
+            systemData.activityLog.push({
+                message: window.editingKPI ? 
+                    `تم تعديل المؤشر: ${kpiData.code}` : 
+                    `تم إضافة مؤشر جديد: ${kpiData.code}`,
+                timestamp: new Date().toISOString()
             });
+            updateDashboard();
+        }
+
+        // تعديل مؤشر
+        function editKPI(code) {
+            const kpi = systemData.kpis.find(k => k.code === code);
+            if (!kpi) return;
+            
+            window.editingKPI = code;
+            
+            document.getElementById('kpiCode').value = kpi.code;
+            document.getElementById('kpiName').value = kpi.name;
+            document.getElementById('kpiCategory').value = kpi.category;
+            document.getElementById('kpiType').value = kpi.type;
+            document.getElementById('kpiFormula').value = kpi.formula || '';
+            document.getElementById('kpiInstructions').value = kpi.instructions || '';
+            
+            document.getElementById('addKPIForm').classList.add('active');
+        }
+
+        // حذف مؤشر
+        function deleteKPI(code) {
+            if (!confirm('هل تريد حذف هذا المؤشر؟')) return;
+            
+            const kpi = systemData.kpis.find(k => k.code === code);
+            systemData.kpis = systemData.kpis.filter(k => k.code !== code);
+            
+            // حفظ في localStorage
+            localStorage.setItem("kpis", JSON.stringify(systemData.kpis));
+            saveData();
+            
+            loadKPIs();
+            showAlert('تم حذف المؤشر بنجاح! ✅');
+            
+            // تسجيل النشاط
+            systemData.activityLog.push({
+                message: `تم حذف المؤشر: ${kpi.code} - ${kpi.name}`,
+                timestamp: new Date().toISOString()
+            });
+            updateDashboard();
         }
 
         // ===== الصلاحيات =====
@@ -1298,6 +1472,15 @@
                     });
                     reportContent += '</table>';
                     break;
+                case 'kpis':
+                    reportContent += '<h3>تقرير المؤشرات</h3>';
+                    reportContent += '<table style="width: 100%; border-collapse: collapse;">';
+                    reportContent += '<tr><th style="border: 1px solid #ddd; padding: 8px;">الكود</th><th style="border: 1px solid #ddd; padding: 8px;">الاسم</th><th style="border: 1px solid #ddd; padding: 8px;">الفئة</th><th style="border: 1px solid #ddd; padding: 8px;">النوع</th></tr>';
+                    systemData.kpis.forEach(k => {
+                        reportContent += `<tr><td style="border: 1px solid #ddd; padding: 8px;">${k.code}</td><td style="border: 1px solid #ddd; padding: 8px;">${k.name}</td><td style="border: 1px solid #ddd; padding: 8px;">${k.category}</td><td style="border: 1px solid #ddd; padding: 8px;">${k.type}</td></tr>`;
+                    });
+                    reportContent += '</table>';
+                    break;
             }
 
             reportContent += '</div>';
@@ -1320,6 +1503,11 @@
                 csv = 'الاسم,البريد,الدور,الحالة\n';
                 systemData.users.forEach(u => {
                     csv += `"${u.name}","${u.email}","${u.role}","${u.status}"\n`;
+                });
+            } else if (reportType === 'kpis') {
+                csv = 'الكود,الاسم,الفئة,النوع\n';
+                systemData.kpis.forEach(k => {
+                    csv += `"${k.code}","${k.name}","${k.category}","${k.type}"\n`;
                 });
             }
 
