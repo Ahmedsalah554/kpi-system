@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام إدخال مؤشرات الأداء - المستخدم</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #1a73e8;
+            --primary-dark: #0d47a1;
+            --accent: #ff9800;
+            --success: #4caf50;
+            --danger: #f44336;
+            --light-bg: #f5f7fa;
+            --white: #ffffff;
+            --text: #333;
+            --border: #e0e0e0;
+        }
+
+        body {
+            background-color: var(--light-bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        /* ===== صفحة الدخول ===== */
+        .login-page {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        }
+
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-header h1 {
+            color: var(--primary);
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+
+        .login-header p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        /* ===== التطبيق الرئيسي ===== */
+        .app-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .app-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .app-header h1 {
+            font-size: 1.5rem;
+        }
+
+        .app-header-right {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .user-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .app-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--light-bg);
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        /* ===== الشبكة ===== */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .kpi-card {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .kpi-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(26, 115, 232, 0.2);
+            transform: translateY(-4px);
+        }
+
+        .kpi-code {
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .kpi-name {
+            font-size: 0.95rem;
+            color: var(--text);
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+
+        .kpi-status {
+            display: inline-block;
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        /* ===== النموذج ===== */
+        .kpi-form {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border-top: 5px solid var(--primary);
+        }
+
+        .kpi-form-header {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--light-bg);
+        }
+
+        .formula-box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-right: 4px solid var(--primary);
+            margin-bottom: 15px;
+            font-family: monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-group label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+
+        .input-group input,
+        .input-group select,
+        .input-group textarea {
+            padding: 12px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus,
+        .input-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
+        }
+
+        .result-box {
+            background: #e8f5e9;
+            padding: 15px;
+            border-radius: 8px;
+            border-right: 4px solid var(--success);
+            margin: 15px 0;
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: #2e7d32;
+            margin-bottom: 5px;
+        }
+
+        .result-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1b5e20;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn-primary {
+            background-color: var(--success);
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex: 1;
+        }
+
+        .btn-primary:hover {
+            background-color: #388e3c;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background-color: var(--accent);
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex: 1;
+        }
+
+        .btn-secondary:hover {
+            background-color: #f57c00;
+        }
+
+        .btn-reset {
+            background-color: #9e9e9e;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-reset:hover {
+            background-color: #757575;
+        }
+
+        .btn-logout {
+            background-color: var(--danger);
+            padding: 8px 16px;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-logout:hover {
+            background-color: #d32f2f;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .alert-success {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            border-right: 4px solid var(--success);
+        }
+
+        .alert-error {
+            background-color: #ffebee;
+            color: #c62828;
+            border-right: 4px solid var(--danger);
+        }
+
+        /* ===== الجدول ===== */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .data-table thead {
+            background-color: var(--light-bg);
+        }
+
+        .data-table th {
+            padding: 12px;
+            text-align: right;
+            font-weight: 700;
+            color: var(--primary);
+            border-bottom: 2px solid var(--border);
+        }
+
+        .data-table td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .data-table tbody tr:hover {
+            background-color: #fafafa;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .tab-btn {
+            padding: 12px 20px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            color: var(--text);
+            font-weight: 600;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab-btn:hover {
+            color: var(--primary);
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .login-container {
+                width: 90%;
+                padding: 30px 20px;
+            }
+
+            .input-row {
+                grid-template-columns: 1fr;
+            }
+
+            .app-header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== صفحة الدخول ===== -->
+    <div id="loginPage" class="login-page">
+        <div class="login-container">
+            <div class="login-header">
+                <h1>🏥 نظام المؤشرات</h1>
+                <p>تسجيل الدخول إلى النظام</p>
+            </div>
+
+            <div id="loginError" class="alert alert-error" style="display: none;"></div>
+
+            <form onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>البريد الإلكتروني *</label>
+                    <input type="email" id="loginEmail" required>
+                </div>
+                <div class="form-group">
+                    <label>كلمة المرور *</label>
+                    <input type="password" id="loginPassword" required>
+                </div>
+                <button type="submit" class="btn">🔓 دخول</button>
+
+                <div style="text-align: center; margin-top: 20px; color: #666; font-size: 0.9rem;">
+                    <p>بيانات تجريبية للاختبار:</p>
+                    <p>البريد: admin@system.com</p>
+                    <p>كلمة المرور: admin123</p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== التطبيق الرئيسي ===== -->
+    <div id="appPage" class="app-container" style="display: none;">
+        <div style="width: 100%; display: flex; flex-direction: column; height: 100%;">
+            <!-- الرأس -->
+            <div class="app-header">
+                <div>
+                    <h1>📊 نظام إدخال مؤشرات الأداء</h1>
+                </div>
+                <div class="app-header-right">
+                    <div class="user-badge">
+                        👤 <span id="userNameDisplay">المستخدم</span>
+                    </div>
+                    <div class="user-badge" style="background: rgba(255, 152, 0, 0.3);">
+                        🏥 <span id="facilityNameDisplay">المنشأة</span>
+                    </div>
+                    <button class="btn-logout" onclick="handleLogout()">🚪 خروج</button>
+                </div>
+            </div>
+
+            <!-- التبويبات -->
+            <div style="padding: 20px 30px; border-bottom: 1px solid var(--border);">
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="switchTab('kpis')">📈 إدخال المؤشرات</button>
+                    <button class="tab-btn" onclick="switchTab('history')">📋 سجل البيانات</button>
+                    <button class="tab-btn" onclick="switchTab('export')">📥 تصدير</button>
+                </div>
+            </div>
+
+            <!-- محتوى التطبيق -->
+            <div class="app-content">
+                <!-- تبويب المؤشرات -->
+                <div id="kpis" class="tab-content active">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">📊 المؤشرات المتاحة</div>
+                            <input type="text" placeholder="🔍 ابحث عن مؤشر..." id="kpiSearch" 
+                                   onkeyup="filterKPIs()" style="padding: 8px 12px; border: 2px solid var(--border); border-radius: 8px; width: 300px; max-width: 100%;">
+                        </div>
+
+                        <div class="grid" id="kpiList"></div>
+                    </div>
+
+                    <!-- نموذج المؤشر -->
+                    <div id="kpiFormContainer" style="display: none;">
+                        <div class="kpi-form">
+                            <div class="kpi-form-header">
+                                <h2 id="kpiFormTitle"></h2>
+                                <button style="float: left; background: none; border: none; font-size: 1.5rem; cursor: pointer;" onclick="closeKPIForm()">✕</button>
+                                <div style="clear: both;"></div>
+                            </div>
+
+                            <div id="formulaInfo"></div>
+
+                            <form onsubmit="saveKPIData(event)">
+                                <div class="input-row">
+                                    <div class="input-group">
+                                        <label>تاريخ الإدخال *</label>
+                                        <input type="date" id="kpiDate" required>
+                                    </div>
+                                    <div class="input-group">
+                                        <label>الفترة الزمنية *</label>
+                                        <select id="kpiPeriod" required>
+                                            <option value="">-- اختر --</option>
+                                            <option value="شهري">شهري</option>
+                                            <option value="ربع سنوي">ربع سنوي</option>
+                                            <option value="سنوي">سنوي</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="input-row">
+                                    <div class="input-group">
+                                        <label id="numeratorLabel">قيمة البسط *</label>
+                                        <input type="number" id="kpiNumerator" step="0.01" required onchange="calculateResult()">
+                                    </div>
+                                    <div class="input-group">
+                                        <label id="denominatorLabel">قيمة المقام *</label>
+                                        <input type="number" id="kpiDenominator" step="0.01" required onchange="calculateResult()">
+                                    </div>
+                                </div>
+
+                                <div id="resultBox" class="result-box" style="display: none;">
+                                    <div class="result-label">النتيجة النهائية</div>
+                                    <div class="result-value" id="resultValue">0</div>
+                                </div>
+
+                                <div class="input-row">
+                                    <div class="input-group" style="grid-column: span 2;">
+                                        <label>ملاحظات</label>
+                                        <textarea id="kpiNotes" style="min-height: 80px;"></textarea>
+                                    </div>
+                                </div>
+
+                                <div class="action-buttons">
+                                    <button type="button" class="btn-primary" onclick="calculateResult()">🧮 احسب النتيجة</button>
+                                    <button type="submit" class="btn-primary">💾 حفظ البيانات</button>
+                                    <button type="button" class="btn-reset" onclick="resetKPIForm()">🔄 إعادة تعيين</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- تبويب السجل -->
+                <div id="history" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">📋 سجل البيانات المدخلة</div>
+                            <button class="btn-primary" style="padding: 8px 16px;" onclick="clearHistory()">🗑️ حذف الكل</button>
+                        </div>
+
+                        <table class="data-table" id="dataTable">
+                            <thead>
+                                <tr>
+                                    <th>كود المؤشر</th>
+                                    <th>التاريخ</th>
+                                    <th>الفترة</th>
+                                    <th>البسط</th>
+                                    <th>المقام</th>
+                                    <th>النتيجة</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                        <p style="text-align: center; color: #999; margin-top: 20px;" id="emptyMessage">لا توجد بيانات محفوظة حتى الآن</p>
+                    </div>
+                </div>
+
+                <!-- تبويب التصدير -->
+                <div id="export" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">📥 تصدير البيانات</div>
+                        </div>
+
+                        <div style="padding: 20px;">
+                            <p style="margin-bottom: 20px;">اختر صيغة التصدير المطلوبة:</p>
+                            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                <button class="btn-primary" style="flex: 1; min-width: 200px; padding: 15px;" onclick="exportToCSV()">📊 تصدير CSV</button>
+                                <button class="btn-primary" style="flex: 1; min-width: 200px; padding: 15px;" onclick="exportToJSON()">📋 تصدير JSON</button>
+                                <button class="btn-primary" style="flex: 1; min-width: 200px; padding: 15px;" onclick="printData()">🖨️ طباعة</button>
+                            </div>
+
+                            <div style="margin-top: 30px; padding: 20px; background: var(--light-bg); border-radius: 8px;">
+                                <h3 style="margin-bottom: 15px;">📊 إحصائيات البيانات</h3>
+                                <p>📈 عدد البيانات المدخلة: <strong id="statsCount">0</strong></p>
+                                <p>📅 آخر تحديث: <strong id="statsDate">-</strong></p>
+                                <p>🏥 المنشأة: <strong id="statsFacility">-</strong></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== متغيرات النظام =====
+        let currentUser = null;
+        let currentFacility = null;
+        let currentKPI = null;
+        let userDataKey = '';
+
+        // ===== التعامل مع تسجيل الدخول =====
+        function handleLogin(event) {
+            event.preventDefault();
+
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            // الحصول على بيانات النظام
+            const systemData = JSON.parse(localStorage.getItem('kpiSystemData') || '{"users": []}');
+            const user = systemData.users.find(u => u.email === email && u.password === password);
+
+            if (user) {
+                currentUser = user;
+                const facility = systemData.facilities.find(f => f.id === user.facility);
+                currentFacility = facility;
+                userDataKey = `kpiData_user_${user.id}`;
+
+                // إظهار التطبيق وإخفاء صفحة الدخول
+                document.getElementById('loginPage').style.display = 'none';
+                document.getElementById('appPage').style.display = 'flex';
+
+                // تحديث بيانات المستخدم والمنشأة
+                document.getElementById('userNameDisplay').textContent = user.name;
+                document.getElementById('facilityNameDisplay').textContent = facility?.name || 'بدون منشأة';
+
+                // تحميل الكيبيس والبيانات
+                loadKPIList();
+                loadUserData();
+                updateStats();
+
+                // تعيين التاريخ الحالي
+                document.getElementById('kpiDate').valueAsDate = new Date();
+            } else {
+                showLoginError('بريد إلكتروني أو كلمة مرور غير صحيحة');
+            }
+        }
+
+        function showLoginError(message) {
+            const errorDiv = document.getElementById('loginError');
+            errorDiv.textContent = '❌ ' + message;
+            errorDiv.style.display = 'block';
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 3000);
+        }
+
+        // ===== تحميل قائمة المؤشرات =====
+        function loadKPIList() {
+            const systemData = JSON.parse(localStorage.getItem('kpiSystemData') || '{"kpis": []}');
+            const kpis = systemData.kpis || getAllKPIs();
+
+            const list = document.getElementById('kpiList');
+            list.innerHTML = kpis.map(kpi => `
+                <div class="kpi-card" onclick="openKPIForm('${kpi.code}', '${kpi.name}', '${kpi.formula || ''}')">
+                    <div class="kpi-code">${kpi.code}</div>
+                    <div class="kpi-name">${kpi.name}</div>
+                    <div class="kpi-status">✏️ إدخال</div>
+                </div>
+            `).join('');
+        }
+
+        // ===== فتح نموذج المؤشر =====
+        function openKPIForm(code, name, formula) {
+            currentKPI = {code, name, formula};
+            document.getElementById('kpiFormContainer').style.display = 'block';
+            document.getElementById('kpiFormTitle').textContent = `${code} - ${name}`;
+
+            if (formula) {
+                document.getElementById('formulaInfo').innerHTML = `
+                    <div class="formula-box">
+                        <strong>الصيغة الرياضية:</strong><br>
+                        ${formula}
+                    </div>
+                `;
+            } else {
+                document.getElementById('formulaInfo').innerHTML = '';
+            }
+
+            // تنظيف النموذج
+            resetKPIForm();
+            document.getElementById('kpiDate').valueAsDate = new Date();
+
+            // التمرير إلى أعلى الصفحة
+            document.getElementById('kpiFormContainer').scrollIntoView({behavior: 'smooth'});
+        }
+
+        function closeKPIForm() {
+            document.getElementById('kpiFormContainer').style.display = 'none';
+            currentKPI = null;
+        }
+
+        // ===== حساب النتيجة =====
+        function calculateResult() {
+            const numerator = parseFloat(document.getElementById('kpiNumerator').value) || 0;
+            const denominator = parseFloat(document.getElementById('kpiDenominator').value) || 0;
+
+            if (denominator !== 0) {
+                const result = (numerator * 100) / denominator;
+                document.getElementById('resultValue').textContent = result.toFixed(2);
+                document.getElementById('resultBox').style.display = 'block';
+            } else {
+                document.getElementById('resultBox').style.display = 'none';
+            }
+        }
+
+        // ===== حفظ بيانات المؤشر =====
+        function saveKPIData(event) {
+            event.preventDefault();
+
+            if (!currentKPI) {
+                alert('❌ يجب اختيار مؤشراً أولاً');
+                return;
+            }
+
+            const data = {
+                kpiCode: currentKPI.code,
+                kpiName: currentKPI.name,
+                date: document.getElementById('kpiDate').value,
+                period: document.getElementById('kpiPeriod').value,
+                numerator: document.getElementById('kpiNumerator').value,
+                denominator: document.getElementById('kpiDenominator').value,
+                result: document.getElementById('resultValue').textContent,
+                notes: document.getElementById('kpiNotes').value,
+                facility: currentFacility.id,
+                facilityName: currentFacility.name,
+                timestamp: new Date().toISOString()
+            };
+
+            // حفظ البيانات
+            let userData = JSON.parse(localStorage.getItem(userDataKey) || '[]');
+            userData.push(data);
+            localStorage.setItem(userDataKey, JSON.stringify(userData));
+
+            // حفظ أيضاً في البيانات العامة للنظام
+            let allData = JSON.parse(localStorage.getItem('kpiData') || '[]');
+            allData.push(data);
+            localStorage.setItem('kpiData', JSON.stringify(allData));
+
+            showSuccess('✅ تم حفظ البيانات بنجاح');
+            loadUserData();
+            updateStats();
+            closeKPIForm();
+        }
+
+        // ===== تحميل بيانات المستخدم =====
+        function loadUserData() {
+            const userData = JSON.parse(localStorage.getItem(userDataKey) || '[]');
+            const tbody = document.querySelector('#dataTable tbody');
+
+            if (userData.length === 0) {
+                document.getElementById('emptyMessage').style.display = 'block';
+                tbody.innerHTML = '';
+                return;
+            }
+
+            document.getElementById('emptyMessage').style.display = 'none';
+            tbody.innerHTML = userData.map((data, index) => `
+                <tr>
+                    <td><strong>${data.kpiCode}</strong></td>
+                    <td>${data.date}</td>
+                    <td>${data.period}</td>
+                    <td>${data.numerator}</td>
+                    <td>${data.denominator}</td>
+                    <td><strong>${data.result}%</strong></td>
+                    <td>
+                        <button class="btn-reset" style="padding: 6px 12px;" onclick="deleteData(${index})">🗑️ حذف</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // ===== حذف البيانات =====
+        function deleteData(index) {
+            if (confirm('هل تريد حذف هذا السجل؟')) {
+                let userData = JSON.parse(localStorage.getItem(userDataKey) || '[]');
+                userData.splice(index, 1);
+                localStorage.setItem(userDataKey, JSON.stringify(userData));
+                loadUserData();
+                showSuccess('✅ تم حذف السجل');
+            }
+        }
+
+        function clearHistory() {
+            if (confirm('هل تريد حذف جميع البيانات؟')) {
+                localStorage.setItem(userDataKey, '[]');
+                loadUserData();
+                showSuccess('✅ تم حذف جميع البيانات');
+            }
+        }
+
+        // ===== تحديث الإحصائيات =====
+        function updateStats() {
+            const userData = JSON.parse(localStorage.getItem(userDataKey) || '[]');
+            document.getElementById('statsCount').textContent = userData.length;
+            document.getElementById('statsFacility').textContent = currentFacility?.name || '-';
+
+            if (userData.length > 0) {
+                const lastDate = new Date(userData[userData.length - 1].timestamp);
+                document.getElementById('statsDate').textContent = lastDate.toLocaleDateString('ar-SA');
+            }
+        }
+
+        // ===== التصدير =====
+        function exportToCSV() {
+            const userData = JSON.parse(localStorage.getItem(userDataKey) || '[]');
+
+            if (userData.length === 0) {
+                alert('⚠️ لا توجد بيانات للتصدير');
+                return;
+            }
+
+            let csv = 'كود المؤشر,اسم المؤشر,التاريخ,الفترة,البسط,المقام,النتيجة,الملاحظات\n';
+            userData.forEach(data => {
+                csv += `"${data.kpiCode}","${data.kpiName}","${data.date}","${data.period}","${data.numerator}","${data.denominator}","${data.result}","${data.notes}"\n`;
+            });
+
+            const blob = new Blob(['﻿' + csv], {type: 'text/csv;charset=utf-8;'});
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `بيانات_${currentFacility.name}_${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+        }
+
+        function exportToJSON() {
+            const userData = JSON.parse(localStorage.getItem(userDataKey) || '[]');
+
+            if (userData.length === 0) {
+                alert('⚠️ لا توجد بيانات للتصدير');
+                return;
+            }
+
+            const data = {
+                facility: currentFacility.name,
+                user: currentUser.name,
+                exportDate: new Date().toISOString(),
+                data: userData
+            };
+
+            const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `بيانات_${currentFacility.name}_${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+        }
+
+        function printData() {
+            const userData = JSON.parse(localStorage.getItem(userDataKey) || '[]');
+
+            if (userData.length === 0) {
+                alert('⚠️ لا توجد بيانات للطباعة');
+                return;
+            }
+
+            let html = `
+                <html dir="rtl" lang="ar">
+                <head>
+                    <title>تقرير البيانات</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; padding: 20px; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                        th, td { border: 1px solid #ddd; padding: 10px; text-align: right; }
+                        th { background-color: #1a73e8; color: white; }
+                        h1 { color: #1a73e8; text-align: center; }
+                    </style>
+                </head>
+                <body>
+                    <h1>تقرير بيانات المؤشرات</h1>
+                    <p><strong>المنشأة:</strong> ${currentFacility.name}</p>
+                    <p><strong>المستخدم:</strong> ${currentUser.name}</p>
+                    <p><strong>تاريخ التقرير:</strong> ${new Date().toLocaleDateString('ar-SA')}</p>
+                    
+                    <table>
+                        <tr>
+                            <th>كود المؤشر</th>
+                            <th>التاريخ</th>
+                            <th>الفترة</th>
+                            <th>البسط</th>
+                            <th>المقام</th>
+                            <th>النتيجة</th>
+                        </tr>
+            `;
+
+            userData.forEach(data => {
+                html += `
+                    <tr>
+                        <td>${data.kpiCode}</td>
+                        <td>${data.date}</td>
+                        <td>${data.period}</td>
+                        <td>${data.numerator}</td>
+                        <td>${data.denominator}</td>
+                        <td>${data.result}%</td>
+                    </tr>
+                `;
+            });
+
+            html += `
+                    </table>
+                </body>
+                </html>
+            `;
+
+            const printWindow = window.open('', '', 'height=500,width=800');
+            printWindow.document.write(html);
+            printWindow.document.close();
+            setTimeout(() => printWindow.print(), 250);
+        }
+
+        // ===== المساعدات =====
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function resetKPIForm() {
+            document.getElementById('kpiNumerator').value = '';
+            document.getElementById('kpiDenominator').value = '';
+            document.getElementById('kpiPeriod').value = '';
+            document.getElementById('kpiNotes').value = '';
+            document.getElementById('resultBox').style.display = 'none';
+            document.getElementById('kpiDate').valueAsDate = new Date();
+        }
+
+        function filterKPIs() {
+            const search = document.getElementById('kpiSearch').value.toLowerCase();
+            const cards = document.querySelectorAll('.kpi-card');
+            
+            cards.forEach(card => {
+                const text = card.textContent.toLowerCase();
+                card.style.display = text.includes(search) ? '' : 'none';
+            });
+        }
+
+        function showSuccess(message) {
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-success';
+            alert.textContent = message;
+            document.querySelector('.app-content').insertBefore(alert, document.querySelector('.card'));
+            setTimeout(() => alert.remove(), 3000);
+        }
+
+        function handleLogout() {
+            if (confirm('هل تريد تسجيل الخروج؟')) {
+                document.getElementById('appPage').style.display = 'none';
+                document.getElementById('loginPage').style.display = 'flex';
+                document.getElementById('loginEmail').value = '';
+                document.getElementById('loginPassword').value = '';
+                currentUser = null;
+                currentFacility = null;
+            }
+        }
+
+        // ===== قائمة المؤشرات الافتراضية =====
+        function getAllKPIs() {
+            return [
+                {"code": "WFM-01", "name": "نسبة تنفيذ الدورات التدريبية", "formula": "(المنفذ × 100) ÷ المخطط"},
+                {"code": "WFM-02", "name": "نسبة الالتزام بالحضور", "formula": "(الملتزمين × 100) ÷ المستهدفين"},
+                {"code": "UTZ-01", "name": "نسبة الاشغال للاقسام الداخلية", "formula": "(أيام الاشغال × 100) ÷ (الأسرة × أيام الفترة)"},
+                {"code": "MP-01", "name": "نسبة وفيات الأقسام الداخلية", "formula": "(عدد الوفيات × 100) ÷ (الأحياء + الوفيات)"},
+                {"code": "PHC-01", "name": "تناسب عدد أطباء الأسرة", "formula": "عدد الأطباء ÷ عدد الأسر"},
+            ];
+        }
+
+        // تحميل النظام عند الدخول
+        window.addEventListener('load', () => {
+            // تحميل بيانات النظام الافتراضية إذا لم تكن موجودة
+            if (!localStorage.getItem('kpiSystemData')) {
+                const defaultData = {
+                    facilities: [
+                        {id: 1, code: 'FAC001', name: 'مستشفى العام', type: 'مستشفى', city: 'الرياض', phone: '0555555555', email: 'info@hospital.sa', status: 'active'},
+                        {id: 2, code: 'FAC002', name: 'مركز صحي شرق', type: 'مركز صحي', city: 'الرياض', phone: '0555555556', email: 'info@east.sa', status: 'active'}
+                    ],
+                    users: [
+                        {id: 1, name: 'مدير النظام', email: 'admin@system.com', password: 'admin123', facility: 1, role: 'admin', status: 'active', registeredDate: new Date().toISOString()},
+                        {id: 2, name: 'مستخدم المستشفى', email: 'user@hospital.com', password: 'user123', facility: 1, role: 'user', status: 'active', registeredDate: new Date().toISOString()},
+                        {id: 3, name: 'مستخدم المركز', email: 'user@center.com', password: 'user123', facility: 2, role: 'user', status: 'active', registeredDate: new Date().toISOString()}
+                    ],
+                    kpis: getAllKPIs(),
+                    permissions: {},
+                    activityLog: []
+                };
+                localStorage.setItem('kpiSystemData', JSON.stringify(defaultData));
+            }
+        });
+    </script>
+</body>
+</html>
