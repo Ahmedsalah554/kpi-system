@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="نظام إدارة مؤشرات الأداء للمنشآت الصحية">
+    <meta name="keywords" content="KPI, مؤشرات, أداء, صحة">
     <title>نظام إدارة مؤشرات الأداء KPI</title>
     
-    <!-- CSS Files -->
     <link rel="stylesheet" href="./css/variables.css">
     <link rel="stylesheet" href="./css/components.css">
     
@@ -34,12 +35,25 @@
             max-width: 600px;
             width: 100%;
             text-align: center;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         h1 {
             color: #1a73e8;
             font-size: 2.5rem;
             margin-bottom: 20px;
+            font-weight: 700;
         }
 
         p {
@@ -100,10 +114,25 @@
             background: #f8f9fa;
             border-radius: 10px;
             border-right: 4px solid #1a73e8;
+            transition: all 0.3s;
+        }
+
+        .feature:hover {
+            background: #e8f5e9;
+            border-right-color: #4caf50;
+            transform: translateX(-5px);
         }
 
         .feature strong {
             color: #1a73e8;
+        }
+
+        .footer {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #e0e0e0;
+            color: #999;
+            font-size: 0.9rem;
         }
 
         @media (max-width: 600px) {
@@ -148,7 +177,30 @@
             <div class="feature">
                 <strong>🔒 آمن وموثوق</strong> - حماية كاملة للبيانات
             </div>
+            <div class="feature">
+                <strong>📱 متجاوب</strong> - يعمل على جميع الأجهزة
+            </div>
+            <div class="feature">
+                <strong>💾 حفظ تلقائي</strong> - لا تفقد بياناتك أبداً
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>صُنع بـ ❤️ في مصر 🇪🇬</p>
+            <p>Version 2.0 © 2026</p>
         </div>
     </div>
+
+    <script>
+        // تأثير بسيط
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                this.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    this.style.transform = '';
+                }, 100);
+            });
+        });
+    </script>
 </body>
 </html>
